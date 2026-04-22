@@ -75,7 +75,11 @@ bot.on('chat', async (username, message) => {
       bot.chat(`Привет, ${username}! Я бот, который может отвечать на сообщения в чате! И кликать на калитки 😉, для того чтобы ваш aternos сервер не выключался. Поставь калитку ровно передо мной, введи команду ${bot.username} "калитка" и я буду работать. "помощь" для команд.`)
       break
     case 'калитка':
-      
+      if (work_flag) {
+        bot.chat(`Я уже работаю! Напиши ${bot.username} стоп, для того чтобы остановить работу.`)
+        return
+      }
+
       const block = bot.blockAt(bot.entity.position.offset(0, 0, 1))
       if (block && block.name.includes('gate')) {
         bot.chat(`Начинаю работать...`)
@@ -111,13 +115,13 @@ async function clickGate() {
     if (block && block.name.includes('gate')) {
       bot.activateBlock(block)
     } else {
-      bot.chat('Калитка куда-то пропала! Поставь калитку ровно передо мной и введи команду "калитка", чтобы начать работу..')
+      bot.chat('Калитка куда-то пропала! Поставь калитку ровно передо мной и введи команду "калитка", чтобы начать работу.')
       work_flag = false
     }
   }
 }
 
-setInterval(clickGate, 1000)
+setInterval(clickGate, 1000);
 
 // Log errors and kick reasons:
 bot.on('kicked', console.log)
