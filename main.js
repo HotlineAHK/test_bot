@@ -75,9 +75,10 @@ bot.on('chat', async (username, message) => {
       bot.chat(`Привет, ${username}! Я бот, который может отвечать на сообщения в чате! И кликать на калитки 😉, для того чтобы ваш aternos сервер не выключался. Поставь калитку ровно передо мной, введи команду ${bot.username} "калитка" и я буду работать. "помощь" для команд.`)
       break
     case 'калитка':
-      bot.chat(`Начинаю работать...`)
+      
       const block = bot.blockAt(bot.entity.position.offset(0, 0, 1))
       if (block && block.name.includes('gate')) {
+        bot.chat(`Начинаю работать...`)
         bot.activateBlock(block)
         work_flag = true
       } else {
@@ -105,6 +106,9 @@ async function clickGate() {
     const block = bot.blockAt(bot.entity.position.offset(0, 0, 1))
     if (block && block.name.includes('gate')) {
       bot.activateBlock(block)
+    } else {
+      bot.chat('Калитка куда-то пропала! Поставь калитку ровно передо мной и введи команду "калитка".')
+      work_flag = false
     }
   }
 }
