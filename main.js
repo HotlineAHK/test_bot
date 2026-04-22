@@ -1,24 +1,72 @@
 const mineflayer = require('mineflayer')
 
-if (process.argv.length < 3 || process.argv.length > 4) {
-  console.log('Usage : node main.js <host> [<name>] [<port>]')
-  process.exit(1)
-}
-
-const bot = mineflayer.createBot({
-  // if bot doesnt connecting to an aternos server, use dynamic ip address from aternos website.
-  host: process.argv[2], // minecraft server ip
-  username: process.argv[3] ? process.argv[3] : 'NotABot',
-  auth: 'offline', // for offline mode servers, you can set this to 'offline'
-  port: parseInt(process.argv[4] ? process.argv[4] : 25565),
-})
+const { loader: baritone, goals } = require('@miner-org/mineflayer-baritone')
+const { Vec3 } = require('vec3')
 
 work_flag = false
 
-bot.on('chat', (username, message) => {
+if (process.argv.length < 3 || process.argv.length > 4) {
+  console.log('Usage : node main.js <host or host:port> [<port>] [<name>]')
+  process.exit(1)
+}
+
+const hostPort = process.argv[2].split(':')
+host = hostPort[0]
+port = hostPort[1] ? parseInt(hostPort[1]) : 25565
+port = parseInt(process.argv[3] ? process.argv[3] : 25565)
+username = process.argv[4] ? process.argv[4] : 'NotABot'
+
+const bot = mineflayer.createBot({
+  // if bot doesnt connecting to an aternos server, use dynamic ip address from aternos website.
+  host: host, // minecraft server ip
+  username: username,
+  auth: 'offline', // for offline mode servers, you can set this to 'offline'
+  port: port,
+})
+
+bot.loadPlugin(baritone)
+
+bot.on('chat', async (username, message) => {
   if (username === bot.username || !message.toString().includes(bot.username)) return
 
   message_str = message.toString().toLowerCase()
+
+  if (message_str.includes('иди')) {
+    await bot.waitForChunksToLoad()
+
+    message_str = message_str.replace('иди', '').trim()
+    message_str = message_str.replace(bot.username.toLowerCase(), '').trim()
+
+    const args = message_str.split(' ');
+
+    const x = parseInt(args[0]);
+    const y = parseInt(args[1]);
+    const z = parseInt(args[2]);
+
+    const target = new Vec3(x, y, z);
+    const goal = new goals.GoalExact(target)
+
+    bot.ashfinder.enableBreaking()
+    bot.ashfinder.enablePlacing()
+
+    if (isNaN(x) || isNaN(y) || isNaN(z)) {
+      bot.chat('Ошибка: Укажите координаты x y z');
+      return;
+    }
+
+    bot.chat(`Иду к ${x}, ${y}, ${z}`);
+    // Настройка движений (учитывает блоки, двери и т.д.)
+
+    try {
+      await bot.ashfinder.goto(goal)
+      bot.chat('Цель достигнута!')
+    } catch (err) {
+      bot.chat('Ошибка пути:', err)
+    }
+
+    return
+  }
+
   message_str = message_str.replace(bot.username.toLowerCase(), '').trim()
 
   switch (message_str) {
@@ -41,6 +89,8 @@ bot.on('chat', (username, message) => {
       bot.chat(`Пока, ${username}!`)
       bot.quit()
       break
+    default:
+      bot.chat(`Прости, ${username}, я не понимаю эту команду. Напиши "${bot.username} помощь" для списка команд.`)
   }
 })
 
