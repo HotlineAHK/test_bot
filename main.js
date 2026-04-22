@@ -19,7 +19,6 @@ bot.on('chat', (username, message) => {
   if (username === bot.username || !message.toString().includes(bot.username)) return
 
   message_str = message.toString().toLowerCase()
-
   message_str = message_str.replace(bot.username.toLowerCase(), '').trim()
 
   switch (message_str) {
@@ -54,7 +53,7 @@ async function clickGate() {
   }
 }
 
-setInterval(clickGate, 1000) // Оно блокирует главный цикл бота, он просто не заходит
+setInterval(clickGate, 1000)
 
 // Log errors and kick reasons:
 bot.on('kicked', console.log)
