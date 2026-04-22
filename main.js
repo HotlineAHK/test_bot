@@ -13,7 +13,7 @@ if (process.argv.length < 3 || process.argv.length > 4) {
 const hostPort = process.argv[2].split(':')
 host = hostPort[0]
 port = hostPort[1] ? parseInt(hostPort[1]) : 25565
-port = parseInt(process.argv[3] ? process.argv[3] : 25565)
+port = process.argv[3] ? parseInt(process.argv[3]) : port
 username = process.argv[4] ? process.argv[4] : 'NotABot'
 
 const bot = mineflayer.createBot({
@@ -76,10 +76,16 @@ bot.on('chat', async (username, message) => {
       break
     case 'калитка':
       bot.chat(`Начинаю работать...`)
-      work_flag = true
+      const block = bot.blockAt(bot.entity.position.offset(0, 0, 1))
+      if (block && block.name.includes('gate')) {
+        bot.activateBlock(block)
+        work_flag = true
+      } else {
+        bot.chat('Не вижу калитку передо мной! Поставь калитку ровно передо мной и введи команду "калитка".')
+      }
       break
     case 'стоп':
-      bot.chat(`Пока, ${username}! Если тебе нужна помощь, просто напиши мне!`)
+      bot.chat(`Заканчиваю работу! Ставьте чайник... 🍵`)
       work_flag = false
       break
     case 'помощь':
@@ -90,7 +96,7 @@ bot.on('chat', async (username, message) => {
       bot.quit()
       break
     default:
-      bot.chat(`Прости, ${username}, я не понимаю эту команду. Напиши "${bot.username} помощь" для списка команд.`)
+      bot.chat(`${username}, я не понимаю эту команду. Напиши "${bot.username} помощь" для списка команд.`)
   }
 })
 
